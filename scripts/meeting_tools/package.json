@@ -1,0 +1,13 @@
+{
+  "name": "capstone-meeting-tools",
+  "version": "1.0.0",
+  "description": "Transcribe and summarize capstone meeting recordings.",
+  "type": "module",
+  "scripts": {
+    "transcribe:gcp": "node transcribe.js",
+    "summarize:gemini": "node summarize.js"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

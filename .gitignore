@@ -1,0 +1,18 @@
+node_modules/
+.env
+.env.local
+.tmp/
+*service-account*.json
+*credentials*.json
+
+# Generated meeting assets
+meetings/audio/*
+meetings/transcripts/*
+meetings/summaries/*
+!meetings/audio/.gitkeep
+!meetings/transcripts/.gitkeep
+!meetings/summaries/.gitkeep
+
+# OS/editor noise
+.DS_Store
+Thumbs.db

@@ -1,0 +1,14 @@
+{
+  "name": "graduation-project-discord-bot",
+  "version": "1.0.0",
+  "description": "Discord server setup script for a graduation project team.",
+  "main": "setup-server.js",
+  "type": "module",
+  "scripts": {
+    "setup": "node setup-server.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7"
+  }
+}

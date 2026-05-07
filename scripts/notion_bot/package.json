@@ -1,0 +1,14 @@
+{
+  "name": "graduation-project-notion-bot",
+  "version": "1.0.0",
+  "description": "Notion workspace setup script for a graduation project team.",
+  "main": "setup-notion.js",
+  "type": "module",
+  "scripts": {
+    "setup": "node setup-notion.js"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "dotenv": "^16.4.7"
+  }
+}
