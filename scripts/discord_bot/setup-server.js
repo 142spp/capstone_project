@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import fs from 'node:fs/promises';
 import {
   ChannelType,
   Client,
@@ -8,6 +9,7 @@ import {
 
 const token = process.env.DISCORD_TOKEN;
 const guildId = process.env.GUILD_ID;
+const cli = parseArgs(process.argv.slice(2));
 
 if (!token) {
   console.error('Missing DISCORD_TOKEN. Add it to .env first.');
@@ -17,6 +19,25 @@ if (!token) {
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
 });
+
+function parseArgs(args) {
+  const command = args.find((arg) => !arg.startsWith('--')) || 'setup';
+  const values = new Map(
+    args
+      .filter((arg) => arg.startsWith('--') && arg.includes('='))
+      .map((arg) => {
+        const index = arg.indexOf('=');
+        return [arg.slice(2, index), arg.slice(index + 1)];
+      }),
+  );
+  const flags = new Set(args.filter((arg) => arg.startsWith('--') && !arg.includes('=')));
+
+  return {
+    command,
+    flag: (name) => flags.has(`--${name}`),
+    value: (name) => values.get(name),
+  };
+}
 
 const roleSpecs = [
   { name: '팀장', color: 0x2f80ed, hoist: true },
@@ -221,6 +242,75 @@ async function sendTemplateOnce(channel, template) {
   console.log(`Template posted: #${channel.name}`);
 }
 
+async function findTextChannel(guild, name) {
+  await guild.channels.fetch();
+  const normalized = normalizeChannelName(name);
+  const channel = guild.channels.cache.find(
+    (candidate) =>
+      candidate.type === ChannelType.GuildText &&
+      normalizeChannelName(candidate.name) === normalized,
+  );
+
+  if (!channel) {
+    throw new Error(`Text channel not found: ${name}`);
+  }
+
+  return channel;
+}
+
+async function postToChannel(guild) {
+  const channelName = cli.value('channel');
+  const filePath = cli.value('file');
+  const message = cli.value('message');
+  const title = cli.value('title');
+
+  if (!channelName) {
+    throw new Error('Missing --channel=<channel-name>.');
+  }
+  if (!filePath && !message) {
+    throw new Error('Missing --file=<path> or --message=<text>.');
+  }
+
+  const channel = await findTextChannel(guild, channelName);
+  const body = filePath ? await fs.readFile(filePath, 'utf8') : message;
+  const content = title ? `# ${title}\n\n${body}` : body;
+  const chunks = splitDiscordMessage(content);
+
+  for (const chunk of chunks) {
+    await channel.send(chunk);
+  }
+
+  console.log(`Posted ${chunks.length} message(s) to #${channel.name}`);
+}
+
+function splitDiscordMessage(content) {
+  const maxLength = 1900;
+  const chunks = [];
+  let remaining = content.trim();
+
+  while (remaining.length > maxLength) {
+    let splitAt = remaining.lastIndexOf('\n\n', maxLength);
+    if (splitAt < maxLength * 0.5) {
+      splitAt = remaining.lastIndexOf('\n', maxLength);
+    }
+    if (splitAt < maxLength * 0.5) {
+      splitAt = maxLength;
+    }
+    chunks.push(remaining.slice(0, splitAt).trim());
+    remaining = remaining.slice(splitAt).trim();
+  }
+
+  if (remaining) {
+    chunks.push(remaining);
+  }
+
+  return chunks;
+}
+
+function normalizeChannelName(name) {
+  return name.toLowerCase().replace(/^#/, '').replaceAll(' ', '-');
+}
+
 async function setupServer() {
   const guild = await pickGuild();
   console.log(`Setting up server: ${guild.name}`);
@@ -244,9 +334,25 @@ async function setupServer() {
   console.log('Done. Graduation project server setup is complete.');
 }
 
+async function runCommand() {
+  const guild = await pickGuild();
+
+  if (cli.command === 'setup') {
+    await setupServer();
+    return;
+  }
+
+  if (cli.command === 'post') {
+    await postToChannel(guild);
+    return;
+  }
+
+  throw new Error(`Unknown command: ${cli.command}`);
+}
+
 client.once('ready', async () => {
   try {
-    await setupServer();
+    await runCommand();
   } catch (error) {
     console.error(error);
     process.exitCode = 1;

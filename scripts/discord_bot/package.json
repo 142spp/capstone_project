@@ -5,7 +5,8 @@
   "main": "setup-server.js",
   "type": "module",
   "scripts": {
-    "setup": "node setup-server.js"
+    "setup": "node setup-server.js setup",
+    "post": "node setup-server.js post"
   },
   "dependencies": {
     "discord.js": "^14.18.0",

@@ -1,10 +1,12 @@
 import 'dotenv/config';
+import fs from 'node:fs/promises';
 import { Client } from '@notionhq/client';
 
 const notionToken = process.env.NOTION_TOKEN;
 const parentPageId = normalizePageId(process.env.NOTION_PARENT_PAGE_ID);
 const homeTitle = process.env.NOTION_HOME_TITLE || '졸업과제 홈';
 const storageTitle = '데이터 저장소';
+const cli = parseArgs(process.argv.slice(2));
 
 if (!notionToken) {
   console.error('Missing NOTION_TOKEN. Add it to .env first.');
@@ -18,6 +20,25 @@ if (!parentPageId) {
 
 const notion = new Client({ auth: notionToken });
 const notionApiVersion = '2026-03-11';
+
+function parseArgs(args) {
+  const command = args.find((arg) => !arg.startsWith('--')) || 'setup';
+  const values = new Map(
+    args
+      .filter((arg) => arg.startsWith('--') && arg.includes('='))
+      .map((arg) => {
+        const index = arg.indexOf('=');
+        return [arg.slice(2, index), arg.slice(index + 1)];
+      }),
+  );
+  const flags = new Set(args.filter((arg) => arg.startsWith('--') && !arg.includes('=')));
+
+  return {
+    command,
+    flag: (name) => flags.has(`--${name}`),
+    value: (name) => values.get(name),
+  };
+}
 
 const databasePlans = [
   {
@@ -249,11 +270,38 @@ function paragraph(content) {
   };
 }
 
+function heading1(content) {
+  return {
+    object: 'block',
+    type: 'heading_1',
+    heading_1: { rich_text: text(content) },
+  };
+}
+
 function heading(content) {
   return {
     object: 'block',
     type: 'heading_2',
     heading_2: { rich_text: text(content) },
+  };
+}
+
+function heading3(content) {
+  return {
+    object: 'block',
+    type: 'heading_3',
+    heading_3: { rich_text: text(content) },
+  };
+}
+
+function codeBlock(content, language = 'plain text') {
+  return {
+    object: 'block',
+    type: 'code',
+    code: {
+      rich_text: text(content.slice(0, 1900)),
+      language,
+    },
   };
 }
 
@@ -461,6 +509,19 @@ async function getExistingDatabases(pageIds) {
   return new Map(entries);
 }
 
+async function getDatabaseIdByTitle(title) {
+  const homePageId = await getOrCreateHomePage();
+  const storagePageId = await getOrCreateStoragePage(homePageId);
+  const existingDatabases = await getExistingDatabases([homePageId, storagePageId]);
+  const databaseId = existingDatabases.get(title);
+
+  if (!databaseId) {
+    throw new Error(`Database not found: ${title}. Run setup first.`);
+  }
+
+  return databaseId;
+}
+
 async function getExistingHomeDatabaseBlocks(pageId) {
   const children = await listAllChildBlocks(pageId);
   return new Set(
@@ -579,8 +640,122 @@ async function setupNotion() {
   console.log('Done. Graduation project Notion setup is complete.');
 }
 
+async function addMeetingSummary() {
+  const filePath = cli.value('file');
+  if (!filePath) {
+    throw new Error('Missing --file=<summary-markdown-path>.');
+  }
+
+  const databaseTitle = cli.value('database') || '회의록';
+  const markdown = await fs.readFile(filePath, 'utf8');
+  const title = cli.value('title') || firstMarkdownTitle(markdown) || filePath.split('/').pop();
+  const date = cli.value('date') || inferDateFromTitle(title);
+  const attendees = cli.value('attendees') || '';
+  const databaseId = await getDatabaseIdByTitle(databaseTitle);
+
+  await notion.pages.create({
+    parent: { database_id: databaseId },
+    properties: {
+      회의명: titleProperty(title.replace(/^#\s*/, '')),
+      날짜: date ? dateProperty(date) : { date: null },
+      참석자: richTextProperty(attendees),
+      결정사항: richTextProperty(extractSectionPlainText(markdown, '결정사항')),
+      다음할일: richTextProperty(extractSectionPlainText(markdown, '액션 아이템')),
+    },
+    children: markdownToBlocks(markdown),
+  });
+
+  console.log(`Meeting summary added to Notion: ${title}`);
+}
+
+function firstMarkdownTitle(markdown) {
+  return markdown.split(/\r?\n/).find((line) => line.startsWith('# '))?.replace(/^#\s*/, '').trim();
+}
+
+function inferDateFromTitle(title) {
+  const compact = title.match(/\b(\d{2})(\d{2})(\d{2})\b/);
+  if (compact) {
+    return `20${compact[1]}-${compact[2]}-${compact[3]}`;
+  }
+
+  const dashed = title.match(/\b(20\d{2})-(\d{2})-(\d{2})\b/);
+  if (dashed) {
+    return dashed[0];
+  }
+
+  return '';
+}
+
+function extractSectionPlainText(markdown, headingText) {
+  const lines = markdown.split(/\r?\n/);
+  const start = lines.findIndex((line) => line.replace(/^#+\s*/, '').trim() === headingText);
+  if (start === -1) {
+    return '';
+  }
+
+  const body = [];
+  for (const line of lines.slice(start + 1)) {
+    if (line.startsWith('## ')) break;
+    body.push(line);
+  }
+
+  return body.join('\n').replace(/\|/g, ' ').trim().slice(0, 1900);
+}
+
+function markdownToBlocks(markdown) {
+  const blocks = [];
+  const lines = markdown.split(/\r?\n/);
+  let tableLines = [];
+
+  for (const line of lines) {
+    if (line.trim().startsWith('|')) {
+      tableLines.push(line);
+      continue;
+    }
+
+    flushTable();
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    if (trimmed.startsWith('# ')) {
+      blocks.push(heading1(trimmed.replace(/^#\s*/, '')));
+    } else if (trimmed.startsWith('## ')) {
+      blocks.push(heading(trimmed.replace(/^##\s*/, '')));
+    } else if (trimmed.startsWith('### ')) {
+      blocks.push(heading3(trimmed.replace(/^###\s*/, '')));
+    } else if (/^[-*]\s+/.test(trimmed)) {
+      blocks.push(bullet(trimmed.replace(/^[-*]\s+/, '')));
+    } else {
+      blocks.push(paragraph(trimmed));
+    }
+  }
+
+  flushTable();
+  return blocks.slice(0, 100);
+
+  function flushTable() {
+    if (tableLines.length === 0) return;
+    blocks.push(codeBlock(tableLines.join('\n'), 'markdown'));
+    tableLines = [];
+  }
+}
+
+async function runCommand() {
+  if (cli.command === 'setup') {
+    await setupNotion();
+    return;
+  }
+
+  if (cli.command === 'add-meeting') {
+    await addMeetingSummary();
+    return;
+  }
+
+  throw new Error(`Unknown command: ${cli.command}`);
+}
+
 try {
-  await setupNotion();
+  await runCommand();
 } catch (error) {
   console.error(error);
   process.exitCode = 1;
