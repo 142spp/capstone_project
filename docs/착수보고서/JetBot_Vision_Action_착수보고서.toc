@@ -19,5 +19,5 @@
 \contentsline {section}{\numberline {4.5}안전 제어 및 예외 처리}{12}{section.4.5}%
 \contentsline {chapter}{\numberline {5}현실적 제약 사항 및 대책}{13}{chapter.5}%
 \contentsline {chapter}{\numberline {6}추진 일정}{15}{chapter.6}%
-\contentsline {chapter}{\numberline {7}역할 분담}{17}{chapter.7}%
-\contentsline {chapter}{\numberline {8}참고 문헌}{18}{chapter.8}%
+\contentsline {chapter}{\numberline {7}역할 분담}{16}{chapter.7}%
+\contentsline {chapter}{\numberline {8}참고 문헌}{17}{chapter.8}%

@@ -1,8 +1,8 @@
 # Fdb version 4
-["pdflatex"] 1778486799.93524 "/home/user/workspace/capstone_project/docs/착수보고서/JetBot_Vision_Action_착수보고서.tex" "JetBot_Vision_Action_착수보고서.pdf" "JetBot_Vision_Action_착수보고서" 1778486800.89357 0
+["pdflatex"] 1778487584.86118 "/home/user/workspace/capstone_project/docs/착수보고서/JetBot_Vision_Action_착수보고서.tex" "JetBot_Vision_Action_착수보고서.pdf" "JetBot_Vision_Action_착수보고서" 1778487585.72476 0
   "/etc/texmf/web2c/texmf.cnf" 1778485078.30044 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/home/user/.texlive2025/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1095.600pk" 1778485349.29243 12644 aeee05f5e13ea90349569c738a920fc6 ""
-  "/home/user/workspace/capstone_project/docs/착수보고서/JetBot_Vision_Action_착수보고서.tex" 1778486797.86043 35111 9f2469ffdcc2651dd92246d2705797f0 ""
+  "/home/user/workspace/capstone_project/docs/착수보고서/JetBot_Vision_Action_착수보고서.tex" 1778487583.56044 34025 a1f0282e79f46172cbf3fe53cff8ca41 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcrm1095.tfm" 1136768653 1536 02c06700a42be0f5a28664c7273f82e7 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1246382020 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
@@ -113,7 +113,6 @@
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb" 1248133631 32080 340ef9bf63678554ee606688e7b5339d ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb" 1248133631 35752 024fb6c41858982481f6968b5fc26508 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb" 1248133631 32722 d7379af29a190c3f453aba36302ff5a9 ""
-  "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb" 1248133631 32726 0a1aea6fcd6468ee2cf64d891f5c43c8 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb" 1248133631 28902 2f5c04fd2884d1878057baa5aad22765 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1248133631 32569 5e5ddc8df908dea60932f3c484a54c0d ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb" 1248133631 31099 c85edf1dd5b9e826d67c9c7293b6786c ""
@@ -282,10 +281,10 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1741904018 41538 c016915c1d51223b6dbbfe27341748a8 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1778485082 178411 14400c8a723c2815f222e49c77ba7f2a ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1778485102 2026598 2c79c01bd9be23d3d9f8ffe6cdd9c59d ""
-  "JetBot_Vision_Action_착수보고서.aux" 1778486800.59643 5100 144a5cfcd6eab2a3551d8ba24b58c0e2 "pdflatex"
-  "JetBot_Vision_Action_착수보고서.out" 1778486800.60043 3083 fd1097031ef41033cdff2661f98aba20 "pdflatex"
-  "JetBot_Vision_Action_착수보고서.tex" 1778486797.86043 35111 9f2469ffdcc2651dd92246d2705797f0 ""
-  "JetBot_Vision_Action_착수보고서.toc" 1778486800.60043 1933 11852d8b8f3694e09b901bf458cf077b "pdflatex"
+  "JetBot_Vision_Action_착수보고서.aux" 1778487585.43644 4560 074a2ebf4aa5c0de9790b45077b970fa "pdflatex"
+  "JetBot_Vision_Action_착수보고서.out" 1778487585.43644 3083 fd1097031ef41033cdff2661f98aba20 "pdflatex"
+  "JetBot_Vision_Action_착수보고서.tex" 1778487583.56044 34025 a1f0282e79f46172cbf3fe53cff8ca41 ""
+  "JetBot_Vision_Action_착수보고서.toc" 1778487585.43644 1933 89496c7e14a53ff66dae195c69fe6569 "pdflatex"
   "pnulogo.jpg" 1778485306.03244 20894 3ac187baebbe8b97d029556b5b922cbd ""
   "pnureport.cls" 1778485361.89243 3205 6ac41904b492ea13313d259ad4141982 ""
   (generated)
